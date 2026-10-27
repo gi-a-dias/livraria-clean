@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Livraria Clean</title>
+    <style>
+        body { max-width: 960px; margin: 2rem auto; padding: 0 1rem; font-family: Arial, sans-serif; color: #222; }
+        h1, h2 { color: #27364b; }
+        form { margin: 1rem 0; }
+        input { padding: .5rem; margin: .2rem; max-width: 100%; }
+        button { padding: .5rem .8rem; cursor: pointer; }
+        .livro { border: 1px solid #ddd; border-radius: 8px; padding: .8rem; margin: .8rem 0; }
+        .mensagem { padding: .7rem; border-radius: 6px; background: #f1f1f1; }
+        label { display: inline-block; margin: .2rem; }
+    </style>
+</head>
+<body>
+    <h1>Livraria Clean</h1>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensagem in mensagens %}
+        <p class="mensagem" role="status">{{ mensagem }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <section>
+        <h2>Cadastrar livro</h2>
+        <form action="{{ url_for('adicionar') }}" method="post">
+            <label>Título <input name="titulo" required maxlength="150"></label>
+            <label>Gênero <input name="genero" required maxlength="100"></label>
+            <label>Preço (R$) <input name="preco" type="number" min="0" step="0.01" required></label>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Livros cadastrados</h2>
+        {% if livros %}
+          {% for livro in livros %}
+            <article class="livro">
+                <p><strong>{{ livro.titulo }}</strong> — {{ livro.genero }} — R$ {{ "%.2f"|format(livro.preco) }}</p>
+                <details>
+                    <summary>Editar este livro</summary>
+                    <form action="{{ url_for('editar', indice=loop.index0) }}" method="post">
+                        <label>Título <input name="titulo" value="{{ livro.titulo }}" required maxlength="150"></label>
+                        <label>Gênero <input name="genero" value="{{ livro.genero }}" required maxlength="100"></label>
+                        <label>Preço (R$) <input name="preco" type="number" min="0" step="0.01" value="{{ livro.preco }}" required></label>
+                        <button type="submit">Salvar alterações</button>
+                    </form>
+                </details>
+            </article>
+          {% endfor %}
+        {% else %}
+          <p>Nenhum livro cadastrado.</p>
+        {% endif %}
+    </section>
+</body>
+</html>

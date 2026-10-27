@@ -1,11 +1,25 @@
+from core.entities import Livro
+from core.repositories import LivroRepository
+
+
 class LivrariaUseCase:
-    def __init__(self, repositorio):
-        # O Use Case recebe uma interface/repositório genérico (DIP aplicado!)
+    """Regras de aplicação. Não conhece Flask nem o formato do arquivo."""
+
+    def __init__(self, repositorio: LivroRepository):
         self.repositorio = repositorio
 
-    def listar_livros(self):
+    def listar_livros(self) -> list[Livro]:
         return self.repositorio.obter_todos()
 
-    def adicionar_livro(self, titulo, genero, preco):
-        novo_livro = {"titulo": titulo, "genero": genero, "preco": preco}
-        self.repositorio.salvar(novo_livro)
+    def adicionar_livro(self, titulo: str, genero: str, preco: float) -> None:
+        livro = Livro(titulo=titulo.strip(), genero=genero.strip(), preco=float(preco))
+        self.repositorio.salvar(livro)
+
+    def editar_livro(self, indice: int, titulo: str, genero: str, preco: float) -> None:
+        livros = self.repositorio.obter_todos()
+        if not isinstance(indice, int) or indice < 0 or indice >= len(livros):
+            raise IndexError("Livro não encontrado.")
+        livro_atualizado = Livro(
+            titulo=titulo.strip(), genero=genero.strip(), preco=float(preco)
+        )
+        self.repositorio.atualizar(indice, livro_atualizado)
